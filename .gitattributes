@@ -1,0 +1,15 @@
+* text=auto
+
+*.bat         text eol=crlf
+*.gradle      text
+*.groovy      text
+*.java        text
+*.jmx         text
+*.kt          text
+*.kts         text
+*.properties  text
+*.scala       text
+*.xml         text
+
+*.jar         binary
+*.jks         binary

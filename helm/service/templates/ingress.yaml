@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-vuejs-frontend
+  annotations:
+    traefik.frontend.rule.type: PathPrefixStrip
+    kubernetes.io/ingress.class: traefik
+spec:
+  tls:
+    - secretName: traefik-cert
+  rules:
+  - host: vuejs-frontend.{{ .Values.id }}.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: vuejs-frontend
+          servicePort: 8080

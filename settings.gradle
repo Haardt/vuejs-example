@@ -1,0 +1,4 @@
+rootProject.name = 'vuejs-example'
+
+include 'frontend'
+include 'server'

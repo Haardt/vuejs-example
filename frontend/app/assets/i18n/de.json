@@ -1,0 +1,26 @@
+{
+  "profile": {
+    "tabLanguage": "Sprache",
+    "tabAppearance": "Design",
+    "save": "Speichern"
+  },
+  "appearance": {
+    "chooseBackgroundColor": "Hintergrundfarbe",
+    "red": "R",
+    "green": "G",
+    "blue": "B"
+  },
+  "lang":{
+    "language": "Sprache",
+    "german": "Deutsch",
+    "english": "Englisch"
+  },
+  "currentLanguage": "Aktuelle Sprache",
+  "mail": {
+    "newMessage": ["Sie haben {count} neue Nachricht.", "Sie haben {count} neue Nachrichten"]
+  },
+  "loading": "Lade...",
+  "saving": "Speicher...",
+  "hello": "Hallo",
+  "doctor": "Doktor"
+}

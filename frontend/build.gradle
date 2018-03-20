@@ -1,0 +1,31 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+}
+
+plugins {
+  id 'com.palantir.docker' version '0.13.0'
+  id "com.moowork.node" version "1.2.0"
+}
+
+repositories {
+  mavenCentral()
+}
+
+apply plugin: 'groovy'
+
+docker {
+  name = 'conpinion-vuejs'
+  tags 'latest'
+  files 'dist'
+  buildArgs([service_version: version])
+}
+
+task buildFrontend(type: NodeTask) {
+  workingDir = new File('.')
+  script = file('fuse.js')
+  args = ['dist']
+}
+
+

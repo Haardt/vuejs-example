@@ -1,0 +1,10 @@
+plugins {
+  id 'com.github.ben-manes.versions' version '0.15.0'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '4.3'
+  distributionType = 'ALL'
+}
+
+dependencyUpdates { revision = 'release' }

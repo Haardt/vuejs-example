@@ -1,0 +1,153 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+buildscript {
+  dependencies {
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
+  }
+}
+
+plugins {
+  id 'org.jetbrains.kotlin.jvm' version '1.1.51'
+  id 'org.jetbrains.kotlin.plugin.spring' version '1.1.51'
+  id 'eu.leontebbens.gradle.chromedriver-updater' version '1.6'
+  id 'io.qameta.allure' version '2.3'
+}
+
+apply plugin: 'groovy'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+  mavenCentral()
+}
+
+ext {
+  // The drivers we want to use
+  drivers = ["firefox", "chrome", "chromeHeadless", "phantomJs"]
+
+  groovyVersion = '2.4.12'
+  gebVersion = '1.1.1'
+  seleniumVersion = '3.5.3'
+  chromeDriverVersion = '2.30'
+  geckoDriverVersion = '0.18.0'
+  phantomJsVersion = '2.1.1'
+}
+
+apply from: "gradle/osSpecificDownloads.gradle"
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+  kotlinOptions {
+    jvmTarget = '1.8'
+    freeCompilerArgs = ['-Xjsr305=strict']
+  }
+}
+
+tasks.withType(JavaCompile) {
+  options.incremental = true
+  options.encoding = 'UTF-8'
+  options.compilerArgs = ['-Xlint:deprecation', '-Xlint:unchecked']
+}
+
+dependencyManagement {
+  dependencies {
+    dependency 'org.codehaus.groovy:groovy-all:2.4.12'
+  }
+}
+
+dependencies {
+  compile project(':frontend')
+
+  compile 'org.jetbrains.kotlin:kotlin-stdlib-jre8'
+  compile 'org.jetbrains.kotlin:kotlin-reflect'
+
+  compile 'io.vertx:vertx-core:3.5.1'
+  compile 'io.vertx:vertx-web:3.5.1'
+  compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
+
+  testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+  testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
+  testRuntime 'net.bytebuddy:byte-buddy:1.7.11' // allows spock mocking of classes (in addition to interfaces)
+
+  testCompile 'org.gebish:geb-spock:2.0'
+
+  // Drivers
+  testCompile "org.seleniumhq.selenium:selenium-chrome-driver:3.4.0"
+  testCompile "org.seleniumhq.selenium:selenium-firefox-driver:3.4.0"
+  // using a custom version of phantomjs driver for now as the original one does not support WebDriver > 2.43.1
+  testCompile("com.codeborne:phantomjsdriver:1.4.3") {
+    // phantomjs driver pulls in a different selenium version
+    transitive = false
+  }
+
+}
+
+drivers.each { driver ->
+  task "${driver}Test"(type: Test) {
+    reports {
+      html.destination = reporting.file("$name/tests")
+      // junitXml.destination = file("$buildDir/test-results/$name")
+    }
+
+    outputs.upToDateWhen { false }  // Always run tests
+
+    systemProperty "geb.build.reportsDir", reporting.file("${buildDir}/geb")
+    systemProperty "geb.env", driver
+
+    // If you wanted to set the baseUrl in your build…
+    // systemProperty "geb.build.baseUrl", "http://myapp.com"
+  }
+}
+
+firefoxTest {
+  dependsOn unzipGeckoDriver
+  def geckodriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "geckodriver.exe" : "geckodriver"
+  def geckodriverFile = new File(unzipGeckoDriver.outputs.files.singleFile, geckodriverFilename)
+  systemProperty "webdriver.gecko.driver", geckodriverFile.absolutePath
+}
+
+drivers.findAll { it =~ /^chrome.*/ }.each { chromeTask ->
+  "${chromeTask}Test" {
+    dependsOn unzipChromeDriver
+    systemProperties System.properties
+    def chromedriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "chromedriver.exe" : "chromedriver"
+    systemProperty "webdriver.chrome.driver", new File(unzipChromeDriver.outputs.files.singleFile, chromedriverFilename).absolutePath
+  }
+}
+
+phantomJsTest {
+  dependsOn unzipPhantomJs
+
+  def phantomJsFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "bin/phantomjs.exe" : "bin/phantomjs"
+  systemProperty "phantomjs.binary.path", new File(unzipPhantomJs.outputs.files.singleFile, phantomJsFilename).absolutePath
+}
+
+apply from: "gradle/ci.gradle"
+
+//test.doFirst {
+//  unzipChromeDriver
+//  systemProperties System.properties
+//  def chromedriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "chromedriver.exe" : "chromedriver"
+//  systemProperty "webdriver.chrome.driver", new File(unzipChromeDriver.outputs.files.singleFile, chromedriverFilename).absolutePath
+//  systemProperty "geb.build.reportsDir", reporting.file("${buildDir}/geb")
+//
+//  environment "geb.env", "chrome"
+//}
+
+test {
+  afterTest { descriptor, result ->
+    logger.lifecycle("$descriptor finished with status $result")
+  }
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDirs += '../frontend/dist'
+    }
+  }
+}
+

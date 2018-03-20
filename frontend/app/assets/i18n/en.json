@@ -1,0 +1,26 @@
+{
+  "profile": {
+    "tabLanguage": "Language",
+    "tabAppearance": "Design",
+    "save": "Save"
+  },
+  "appearance": {
+    "chooseBackgroundColor": "Background Color",
+    "red": "R",
+    "green": "G",
+    "blue": "B"
+  },
+  "lang": {
+    "language": "Language",
+    "german": "German",
+    "english": "English"
+  },
+  "currentLanguage": "Current language",
+  "mail": {
+    "newMessage": ["You have {count} new message", "You have {count} new messages"]
+  },
+  "loading": "Loading...",
+  "saving": "Saving...",
+  "hello": "Hello",
+  "doctor": "Doctor"
+}

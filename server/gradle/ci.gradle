@@ -1,0 +1,14 @@
+if (System.getenv('LAB_CI')) {
+    chromeTest {
+        systemProperties System.properties
+        systemProperty "webdriver.chrome.driver", "/usr/bin/chromedriver"
+        systemProperty "webdriver.chrome.exe", "/usr/bin/chromium-browser"
+    }
+
+    tasks.withType(Test) {
+        testLogging {
+            showStandardStreams = true
+            exceptionFormat = 'full'
+        }
+    }
+}

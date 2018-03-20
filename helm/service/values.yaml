@@ -1,0 +1,3 @@
+
+imagePullPolicy: Always
+image: cp-registry.starface.com/cp/domain-frontend:0.0.1
