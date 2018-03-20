@@ -1,4 +1,4 @@
-package de.conpinion.vuejs.startervuejs
+package de.conpinion.startervuejs
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
@@ -27,7 +27,6 @@ class StaticWebSite {
 
   fun serve() {
     val vertx: Vertx = Vertx.vertx()
-    var server = vertx.createHttpServer()
     var router = Router.router(vertx)
     setCorsPermissions(router)
     router.route("/eventbus/*").handler(createSockJSHandler(vertx))
