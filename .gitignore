@@ -24,3 +24,5 @@ selenium-debug.log
 *.sln
 build/
 .vertx
+.iml
+
